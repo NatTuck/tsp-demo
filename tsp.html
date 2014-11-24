@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+<title>TSP Solver Demo</title>
+<script src="underscore-min.js"></script>
+<script src="jquery-2.1.1.min.js"></script>
+<script src="createjs-2013.12.12.min.js"></script>
+<script src="graph.js"></script>
+<script src="tsp-solver-demo.js"></script>
+</head>
+<body>
+  <div>
+    Cities: <input type="text" value="5" id="city-count">
+    <button id="reset-btn">Reset</button>
+    <button id="mst-btn">Draw MST</button>
+    <button id="solve-btn">Solve (Naive)</button>
+    <button id="solve-mst-btn">Solve (MST)</button>
+    Ops: <span id="op-count">0</span> 
+  </div>
+
+  <canvas id="tsp-canvas" width="800" height="600">
+  </canvas>
+
+  <script type="text/javascript">
+    $(setup);
+    $('#reset-btn').click(reset);
+    $('#solve-btn').click(solveNaive);
+    $('#solve-mst-btn').click(solveMST);
+    $('#mst-btn').click(showMST);
+  </script>
+</body>
+</html>
