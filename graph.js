@@ -59,6 +59,11 @@ function graph_vertices() {
     return verts;
 }
 
+function graph_vertex_count() {
+    var verts = this.vertices();
+    return verts.length;
+}
+
 function graph_neighbors(vv) {
     if (!this.adj[vv]) {
         console.log(this);
@@ -148,6 +153,17 @@ function graph_dfs(cb) {
     }
 }
 
+function graph_dfs_simple(cb) {
+    var vs = this.vertices();
+
+    if (vs.length < 1) {
+        return;
+    }
+
+    var seen = {};
+    graph_dfs_helper(this, seen, vs[0], vs[0], cb);
+}
+
 function graph() {
     var proto = {
         add_edge:  graph_add_edge,
@@ -158,6 +174,8 @@ function graph() {
         neighbors: graph_neighbors,
         remove_edge: graph_remove_edge,
         dfs:       graph_dfs,
+        dfs_simple: graph_dfs_simple,
+        vertex_count: graph_vertex_count,
     };
 
     var gg = Object.create(proto);

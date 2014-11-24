@@ -246,3 +246,132 @@ function solveMST() {
 
     endCount();
 }
+
+function edgesLength(edges) {
+    var len = 0;
+
+    for (var ii = 0; ii < edges.length; ++ii) {
+        var aa = edges[ii][0];
+        var bb = edges[ii][1];
+        len += distance(aa, bb);
+    } 
+
+    return len;
+}
+
+function swapEdgeStart(es, ii, jj) {
+    var s0 = es[ii][0];
+    var s1 = es[jj][0];
+
+    if (s0 == es[jj][1] || s1 == es[ii][1]) {
+        return;
+    }
+
+    es[ii][0] = s1;
+    es[jj][0] = s0;
+}
+
+function deepCopy(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+
+function isRudrata(es) {
+    var gg = graph();
+    gg.add_edges(es);
+
+    var count = 0;
+
+    gg.dfs_simple(function(vv) {
+        console.log(vv);
+        count++;
+    });
+
+    return count == gg.vertex_count();
+}
+
+function solveTwos() {
+    startCount();
+
+    var path = _.range(cities.length);
+    
+    var edges = [];
+
+    for (var ii = 0; ii < path.length - 1; ++ii) {
+        edges.push([path[ii], path[ii + 1]]);
+    }
+
+    edges.push([path[path.length - 1], 0]);
+
+    console.log("good? ", isRudrata(edges));
+
+    for (var ii = 0; ii < edges.length; ++ii) {
+        for (var jj = 0; jj < edges.length; ++jj) {
+            // Try swapping pair.
+            var es1  = deepCopy(edges);
+            swapEdgeStart(es1, ii, jj);
+
+            console.log(ii, jj, isRudrata(es1), JSON.stringify(edges));
+
+            if (isRudrata(es1) && edgesLength(es1) < edgesLength(edges)) {
+                edges = es1;
+            }
+        }
+    }
+
+    console.log(JSON.stringify(edges));
+
+    drawEdges(edges);
+
+    endCount();
+}
+
+function solveThrees() {
+    startCount();
+
+    var path = _.range(cities.length);
+    
+    var edges = [];
+
+    for (var ii = 0; ii < path.length - 1; ++ii) {
+        edges.push([path[ii], path[ii + 1]]);
+    }
+
+    edges.push([path[path.length - 1], 0]);
+
+    for (var ii = 0; ii < edges.length; ++ii) {
+        for (var jj = 0; jj < edges.length; ++jj) {
+            // Swap ii <-> jj
+            var es1  = edges.slice(0);
+            swapEdgeStart(es1, ii, jj);
+
+            if (edgesLength(es1) < edgesLength(edges)) {
+                edges = es1;
+            }
+
+            for (var kk = 0; kk < edges.length; ++kk) {
+                var es1 = edges.slice(0);
+                var es2 = edges.slice(0);
+
+                // Swap ii -> jj -> kk -> ii
+                swapEdgeStart(es1, ii, jj);
+                swapEdgeStart(es1, ii, kk);
+                
+                if (edgesLength(es1) < edgesLength(edges)) {
+                    edges = es1;
+                }
+
+                // Swap ii -> kk -> jj -> ii
+                swapEdgeStart(es2, ii, kk);
+                swapEdgeStart(es2, ii, jj);
+                
+                if (edgesLength(es2) < edgesLength(edges)) {
+                    edges = es2;
+                }
+            }
+        }
+    }
+
+    drawEdges(edges);
+
+    endCount();
+}
