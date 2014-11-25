@@ -80,10 +80,16 @@ function distance(ii, jj) {
 
 function pathCost(path) {
     var cost = 0;
-   
+  
+    if (path[0] != path[path.length - 1]) {
+        path = deepCopy(path);
+        path.push(path[0]);
+    }
+
     for (var ii = 0; ii < (path.length - 1); ++ii) {
         cost += distance(path[ii], path[ii + 1]);
     }
+
     return cost;
 }
 
@@ -107,6 +113,8 @@ function drawPath(path) {
    } 
 
     stage.update();
+
+    $('#path-len').text(Math.round(pathCost(path)));
 }
 
 function drawEdges(edges) {
@@ -259,68 +267,38 @@ function edgesLength(edges) {
     return len;
 }
 
-function swapEdgeStart(es, ii, jj) {
-    var s0 = es[ii][0];
-    var s1 = es[jj][0];
-
-    if (s0 == es[jj][1] || s1 == es[ii][1]) {
-        return;
-    }
-
-    es[ii][0] = s1;
-    es[jj][0] = s0;
-}
-
 function deepCopy(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 
-function isRudrata(es) {
-    var gg = graph();
-    gg.add_edges(es);
-
-    var count = 0;
-
-    gg.dfs_simple(function(vv) {
-        console.log(vv);
-        count++;
-    });
-
-    return count == gg.vertex_count();
+function swap(xs, ii, jj) {
+    var tmp = xs[ii];
+    xs[ii] = xs[jj];
+    xs[jj] = tmp;
 }
 
 function solveTwos() {
     startCount();
 
     var path = _.range(cities.length);
-    
-    var edges = [];
-
-    for (var ii = 0; ii < path.length - 1; ++ii) {
-        edges.push([path[ii], path[ii + 1]]);
-    }
-
-    edges.push([path[path.length - 1], 0]);
-
-    console.log("good? ", isRudrata(edges));
-
-    for (var ii = 0; ii < edges.length; ++ii) {
-        for (var jj = 0; jj < edges.length; ++jj) {
-            // Try swapping pair.
-            var es1  = deepCopy(edges);
-            swapEdgeStart(es1, ii, jj);
-
-            console.log(ii, jj, isRudrata(es1), JSON.stringify(edges));
-
-            if (isRudrata(es1) && edgesLength(es1) < edgesLength(edges)) {
-                edges = es1;
+   
+    for (var kk = 0; kk < path.length; ++kk) {
+        for (var ii = 0; ii < path.length; ++ii) {
+            for (var jj = 0; jj < path.length; ++jj) {
+                // Try swapping pair.
+                var pp1 = deepCopy(path);
+                swap(pp1, ii, jj);
+                
+                if (pathCost(pp1) < pathCost(path)) {
+                    path = pp1;
+                }
             }
         }
     }
+    
+    path.push(path[0]);
 
-    console.log(JSON.stringify(edges));
-
-    drawEdges(edges);
+    drawPath(path);
 
     endCount();
 }
@@ -329,49 +307,167 @@ function solveThrees() {
     startCount();
 
     var path = _.range(cities.length);
-    
-    var edges = [];
-
-    for (var ii = 0; ii < path.length - 1; ++ii) {
-        edges.push([path[ii], path[ii + 1]]);
-    }
-
-    edges.push([path[path.length - 1], 0]);
-
-    for (var ii = 0; ii < edges.length; ++ii) {
-        for (var jj = 0; jj < edges.length; ++jj) {
-            // Swap ii <-> jj
-            var es1  = edges.slice(0);
-            swapEdgeStart(es1, ii, jj);
-
-            if (edgesLength(es1) < edgesLength(edges)) {
-                edges = es1;
-            }
-
-            for (var kk = 0; kk < edges.length; ++kk) {
-                var es1 = edges.slice(0);
-                var es2 = edges.slice(0);
-
-                // Swap ii -> jj -> kk -> ii
-                swapEdgeStart(es1, ii, jj);
-                swapEdgeStart(es1, ii, kk);
+   
+    for (var oo = 0; oo < path.length; ++oo) {
+        for (var ii = 0; ii < path.length; ++ii) {
+            for (var jj = 0; jj < path.length; ++jj) {
+                // Try swapping pair.
+                var pp1 = deepCopy(path);
+                swap(pp1, ii, jj);
                 
-                if (edgesLength(es1) < edgesLength(edges)) {
-                    edges = es1;
+                if (pathCost(pp1) < pathCost(path)) {
+                    path = pp1;
                 }
-
-                // Swap ii -> kk -> jj -> ii
-                swapEdgeStart(es2, ii, kk);
-                swapEdgeStart(es2, ii, jj);
                 
-                if (edgesLength(es2) < edgesLength(edges)) {
-                    edges = es2;
+                for (var kk = 0; kk < path.length; ++kk) {
+                    var pp2 = deepCopy(path);
+                    swap(pp2, ii, jj);
+                    swap(pp2, jj, kk);
+
+                    if (pathCost(pp2) < pathCost(path)) {
+                        path = pp2;
+                    }
+
+                    var pp3 = deepCopy(path);
+                    swap(pp3, ii, kk);
+                    swap(pp3, jj, kk);
+                    
+                    if (pathCost(pp2) < pathCost(path)) {
+                        path = pp2;
+                    }
                 }
             }
         }
     }
+    
+    path.push(path[0]);
 
-    drawEdges(edges);
+    drawPath(path);
+
+    endCount();
+}
+
+function solveRandom() {
+    startCount();
+
+    var path = _.range(cities.length);
+
+    for (var ii = 0; ii < cities.length * cities.length; ++ii) {
+        var pp1 = _.shuffle(deepCopy(path));
+       
+        if (pathCost(pp1) < pathCost(path)) {
+            path = pp1;
+        }
+    }
+
+    path.push(path[0]);
+
+    drawPath(path);
+
+    endCount();
+}
+
+function solveSA() {
+    startCount();
+
+    var heat = 10;
+    var path = _.range(cities.length);
+
+    while (heat > 1.001) {
+        for (var ii = 0; ii < 10 * path.length * path.length; ++ii) {
+            var pp1 = deepCopy(path);
+
+            for (var jj = 0; jj < 3; ++jj) {
+                var xx = Math.floor(path.length * Math.random());
+                var yy = Math.floor(path.length * Math.random());
+               
+                swap(pp1, xx, yy);
+            }
+        
+            if (pathCost(pp1) < heat * pathCost(path)) {
+                path = pp1;
+            }
+        }
+
+        heat = Math.sqrt(heat);
+    }
+    
+    path.push(path[0]);
+
+    drawPath(path);
+
+    endCount();
+}
+
+function solveBB() {
+    startCount();
+
+    // Length of the two cheapest edges from city ii.
+    var cheapest2 = [];
+
+    for (var ii = 0; ii < cities.length; ++ii) {
+        // Find cheapest edge.
+        var e1 = Number.POSITIVE_INFINITY;
+        var c1 = 0;
+        for (var jj = 0; jj < cities.length; ++jj) {
+            var dd = distance(ii, jj);
+            if (dd < e1) {
+                e1 = dd;
+                c1 = jj;
+            }
+        }
+
+        // Find second cheapest edge.
+        var e2 = Number.POSITIVE_INFINITY;
+        for (var jj = 0; jj < cities.length; ++jj) {
+            var dd = distance(ii, jj);
+            if (jj != c1 && dd < e2) {
+                e2 = dd;
+            }
+        }
+
+        cheapest2[ii] = e1 + e2;
+    }
+
+    var best_cost = Number.POSITIVE_INFINITY;
+    var best_path = _.range(cities.length);
+
+    var searchBB = function (guess, rest) {
+        var guess_cost = pathCost(guess);
+
+        if (guess.length == cities.length) {
+            if (guess_cost < best_cost) {
+                best_cost = guess_cost;
+                best_path = guess;
+            }
+
+            return;
+        }
+
+        var rest_bound = 0;
+        for (var ii = 0; ii < rest.length; ++ii) {
+            rest_bound += cheapest2[ii] / 2.0;
+        }
+
+        if (guess_cost + rest_bound > best_cost) {
+            return;
+        }
+
+        for (var ii = 0; ii < rest.length; ++ii) {
+            var r1 = deepCopy(rest);
+            var cc = r1.splice(ii, 1);
+
+            var g1 = deepCopy(guess);
+            g1.push(cc);
+
+            searchBB(g1, r1);
+        }
+    };
+
+    searchBB([], _.range(cities.length));
+    
+    best_path.push(best_path[0]);
+    drawPath(best_path);
 
     endCount();
 }

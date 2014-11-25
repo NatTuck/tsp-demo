@@ -15,7 +15,14 @@
     <button id="mst-btn">Draw MST</button>
     <button id="solve-btn">Solve (Naive)</button>
     <button id="solve-mst-btn">Solve (MST)</button>
-    Ops: <span id="op-count">0</span> 
+    <button id="solve-twos-btn">Solve (Twos)</button>
+    <button id="solve-threes-btn">Solve (Threes)</button>
+    <br>
+    <button id="solve-random-btn">Solve (Random)</button>
+    <button id="solve-sa-btn">Solve (SA)</button>
+    <button id="solve-bb-btn">Solve (B&amp;B)</button>
+    Ops: <span id="op-count">0</span>
+    Len: <span id="path-len">0</span>
   </div>
 
   <canvas id="tsp-canvas" width="800" height="600">
@@ -26,6 +33,11 @@
     $('#reset-btn').click(reset);
     $('#solve-btn').click(solveNaive);
     $('#solve-mst-btn').click(solveMST);
+    $('#solve-twos-btn').click(solveTwos);
+    $('#solve-threes-btn').click(solveThrees);
+    $('#solve-random-btn').click(solveRandom);
+    $('#solve-sa-btn').click(solveSA);
+    $('#solve-bb-btn').click(solveBB);
     $('#mst-btn').click(showMST);
   </script>
 </body>
