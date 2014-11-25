@@ -129,44 +129,37 @@ function drawEdges(edges) {
     stage.update();
 }
 
-function permutations(arr) {
-    if (arr.length <= 1) {
-        return [arr];
+function permutations(perm, arr, cb) {
+    if (arr.length < 1) {
+        cb(perm);
     }
-
-    var perms = [];
 
     for (var ii = 0; ii < arr.length; ++ii) {
         var rest = arr.slice(0);
         var item = rest.splice(ii, 1);
 
-        var subs = permutations(rest);
-        for (var jj = 0; jj < subs.length; ++jj) {
-            perms.push(item.concat(subs[jj]));
-        }
-    }
+        var p1 = perm.slice(0);
+        p1.push(item);
 
-    return perms;
+        permutations(p1, rest, cb);
+    }
 }
 
 function solveNaive() {
     startCount();
 
-    var perms = permutations(_.range(cities.length));
     var bestp = [];
     var bestc = Number.POSITIVE_INFINITY;
 
-    for (var ii = 0; ii < perms.length; ++ii) {
-        var path = perms[ii];
-        path.push(path[0]);
-
+    permutations([], _.range(cities.length), function(path) {
         var cost = pathCost(path);
         if (cost < bestc) {
             bestc = cost;
             bestp = path;
         }
-    }
+    });
 
+    bestp.push(bestp[0]);
     drawPath(bestp);
 
     endCount();
